@@ -1,0 +1,12 @@
+.env
+.venv/
+.DS_Store
+.sisyphus/
+__pycache__/
+*.pyc
+output/
+.chainlit/.langchain.db
+.chainlit/chat_files/
+.chainlit/translations/
+.files/
+uv.lock

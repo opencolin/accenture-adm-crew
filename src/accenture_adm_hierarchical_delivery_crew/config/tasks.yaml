@@ -1,0 +1,144 @@
+---
+engagement_strategy_delivery_planning:
+  description: Define the overall engagement strategy and delivery approach for {client_name}'s
+    {engagement_type} initiative. Clarify business objectives, success metrics, delivery
+    model, governance structure, and high-level risks. This task sets direction for
+    all downstream ADM phases and requires MD approval before proceeding.
+  expected_output: 'A concise engagement framing document including: 1. Business objectives
+    and success criteria for {client_name}, 2. Recommended delivery model (Agile/Hybrid/Waterfall),
+    3. High-level roadmap and milestones, 4. Governance and decision-making model,
+    5. Key risks and mitigation strategies'
+  agent: associate_director_at_accenture
+strategic_engagement_approval:
+  description: Review and approve the engagement strategy, ensuring alignment with
+    {client_name}'s strategic objectives and Accenture's delivery standards. Provide
+    final authorization for the {engagement_type} engagement to proceed to the Analyze
+    phase. Validate commercial viability and executive stakeholder alignment.
+  expected_output: 'Executive approval decision with: 1. Go/No-go recommendation,
+    2. Strategic alignment assessment, 3. Resource and timeline validation, 4. Key
+    success metrics confirmation, 5. Authorization to proceed to Analyze phase'
+  agent: senior_delivery_lead_at_accenture
+  context:
+  - engagement_strategy_delivery_planning
+business_requirements_analysis:
+  description: Analyze {client_name} needs and translate them into clear, structured
+    functional and non-functional requirements for {engagement_type}. Identify priorities,
+    constraints, and acceptance criteria through stakeholder interviews and business
+    analysis.
+  expected_output: 'A requirements summary including: 1. Key business problems and
+    user needs, 2. Functional requirements (prioritized), 3. Non-functional requirements
+    (performance, security, compliance), 4. Assumptions, risks, and open questions'
+  agent: strategy_consulting_analyst_at_accenture
+  context:
+  - strategic_engagement_approval
+backlog_definition_scope_planning:
+  description: Translate requirements into a prioritized backlog suitable for iterative
+    delivery of {engagement_type} for {client_name}. Ensure scope is clear, testable,
+    and aligned to business value with proper sequencing and dependencies.
+  expected_output: 'A prioritized backlog containing: 1. Epics and user stories, 2.
+    Clear acceptance criteria, 3. Scope boundaries (in/out), 4. Dependencies and sequencing
+    notes, 5. Effort estimates and sprint planning recommendations'
+  agent: management_consultant_at_accenture
+  context:
+  - business_requirements_analysis
+solution_architecture_design:
+  description: Design the end-to-end solution architecture for {engagement_type} that
+    satisfies {client_name} business, functional, and non-functional requirements.
+    Address scalability, security, integration, and operability with clear architectural
+    decisions and trade-offs.
+  expected_output: 'An architecture design package including: 1. High-level architecture
+    overview, 2. Key components and integrations, 3. Data flows and system interactions,
+    4. Architectural decisions and trade-offs, 5. Technology stack recommendations'
+  agent: solution_architect_at_accenture
+  context:
+  - backlog_definition_scope_planning
+technical_architecture_review:
+  description: Review and validate the solution architecture from a technical perspective,
+    ensuring enterprise-grade standards, security compliance, and scalability for
+    {client_name}'s {engagement_type} initiative. Provide technical governance and
+    architectural approval.
+  expected_output: 'Technical architecture approval including: 1. Architecture validation
+    report, 2. Technical risk assessment, 3. Compliance and security review, 4. Performance
+    and scalability analysis, 5. Approval recommendation with conditions'
+  agent: technology_architect_at_accenture
+  context:
+  - solution_architecture_design
+solution_development_implementation:
+  description: Coordinate the build of a working solution increment for {engagement_type}
+    aligned to the approved design and backlog for {client_name}. Emphasize quality,
+    testability, and maintainability while ensuring adherence to architectural standards.
+  expected_output: 'A completed solution increment including: 1. Implemented features
+    per backlog priorities, 2. Updated technical documentation, 3. Build artifacts
+    and version notes, 4. Quality assurance reports, 5. Integration test results'
+  agent: technology_delivery_lead_at_accenture
+  context:
+  - technical_architecture_review
+sprint_execution_project_tracking:
+  description: Execute delivery sprints for {engagement_type} by tracking progress,
+    managing blockers, and ensuring alignment across team members for {client_name}.
+    Maintain project momentum while managing scope, timeline, and quality constraints.
+  expected_output: 'Sprint outcomes including: 1. Completed backlog items with acceptance
+    criteria met, 2. Blockers identified and resolution plans, 3. Sprint metrics (scope,
+    velocity, risks), 4. Stakeholder communication reports, 5. Next sprint planning
+    recommendations'
+  agent: digital_project_manager_at_accenture
+  context:
+  - solution_development_implementation
+integrated_testing_solution_validation:
+  description: Validate that the {engagement_type} solution meets functional, non-functional,
+    and business requirements for {client_name}. Identify defects and readiness gaps
+    prior to release through comprehensive testing protocols.
+  expected_output: 'A testing summary including: 1. Test coverage and results across
+    all functional areas, 2. Defects categorized by severity and impact, 3. Non-functional
+    testing results (performance, security, scalability), 4. Release readiness recommendation
+    with evidence, 5. Outstanding issues and remediation timeline'
+  agent: engagement_manager_at_accenture
+  context:
+  - sprint_execution_project_tracking
+user_acceptance_testing_coordination:
+  description: Coordinate and support user acceptance testing for {engagement_type}
+    with {client_name} stakeholders. Ensure client validation criteria are met, documented,
+    and that business users can successfully operate the solution.
+  expected_output: 'UAT results including: 1. Approved acceptance outcomes by business
+    function, 2. User feedback and satisfaction metrics, 3. Outstanding issues with
+    business impact assessment, 4. Training and support requirements, 5. Go/no-go
+    recommendation for production deployment'
+  agent: engagement_manager_at_accenture
+  context:
+  - integrated_testing_solution_validation
+production_deployment_cutover:
+  description: Execute production deployment and cutover activities for {engagement_type},
+    ensuring {client_name} business continuity and minimal disruption. Manage go-live
+    activities, monitor system stability, and coordinate with operational teams.
+  expected_output: 'Deployment completion report including: 1. Go-live execution summary
+    and timeline, 2. System performance and stability metrics, 3. Business continuity
+    validation, 4. Incident log and resolution summary, 5. Operational handover checklist
+    completion'
+  agent: program_management_lead_at_accenture
+  context:
+  - user_acceptance_testing_coordination
+service_introduction_engagement_closure:
+  description: Synthesize all ADM phase deliverables and strategic outcomes to provide
+    executive closure for the {engagement_type} engagement with {client_name}. Demonstrate
+    measurable value realization, strategic alignment achievement, and sustainable
+    competitive advantage delivery. Create comprehensive service introduction package
+    that reflects the full engagement journey and positions {client_name} for continued
+    success.
+  expected_output: 'Executive synthesis report including: 1. Strategic value realization
+    summary with quantified business impact, 2. Comprehensive service transition framework
+    aligned to {client_name} strategic objectives, 3. Success metrics validation against
+    original engagement goals, 4. Operational excellence framework for sustained performance,
+    5. Strategic recommendations for competitive advantage and future growth opportunities'
+  agent: associate_director_at_accenture
+  context:
+  - engagement_strategy_delivery_planning
+  - strategic_engagement_approval
+  - business_requirements_analysis
+  - backlog_definition_scope_planning
+  - solution_architecture_design
+  - technical_architecture_review
+  - solution_development_implementation
+  - sprint_execution_project_tracking
+  - integrated_testing_solution_validation
+  - user_acceptance_testing_coordination
+  - production_deployment_cutover
