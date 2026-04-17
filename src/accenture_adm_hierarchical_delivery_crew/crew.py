@@ -14,15 +14,10 @@ NEBIUS_BASE_URL = "https://api.tokenfactory.nebius.com/v1"
 NEBIUS_API_KEY = os.environ.get("NEBIUS_API_KEY", "")
 
 AVAILABLE_MODELS = {
-    "DeepSeek V3.2": "openai/deepseek-ai/DeepSeek-V3.2",
-    "DeepSeek R1": "openai/deepseek-ai/DeepSeek-R1-0528",
-    "Qwen 3.5 397B": "openai/Qwen/Qwen3.5-397B-A17B",
-    "Qwen3 Coder 480B": "openai/Qwen/Qwen3-Coder-480B-A35B-Instruct",
-    "Qwen3 235B Instruct": "openai/Qwen/Qwen3-235B-A22B-Instruct-2507",
-    "Qwen3 235B Thinking": "openai/Qwen/Qwen3-235B-A22B-Thinking-2507",
-    "GLM-5": "openai/zai-org/GLM-5",
-    "GLM-4.7": "openai/zai-org/GLM-4.7",
     "Hermes 4 405B": "openai/NousResearch/Hermes-4-405B",
+    "DeepSeek V3.2": "openai/deepseek-ai/DeepSeek-V3.2",
+    "Qwen 3.5 397B": "openai/Qwen/Qwen3.5-397B-A17B",
+    "GLM-5": "openai/zai-org/GLM-5",
     "GPT-OSS 120B": "openai/openai/gpt-oss-120b",
     "Kimi K2.5": "openai/moonshot-ai/Kimi-K2.5",
     "MiniMax M2.5": "openai/minimax/MiniMax-M2.5",
@@ -31,7 +26,7 @@ AVAILABLE_MODELS = {
     "Gemma 3 27B": "openai/google/Gemma-3-27b-it",
 }
 
-DEFAULT_MODEL = "DeepSeek V3.2"
+DEFAULT_MODEL = "Hermes 4 405B"
 
 # Tools for agents that interact with the client
 client_facing_tools = [search_tool, scrape_tool, ask_human_tool]

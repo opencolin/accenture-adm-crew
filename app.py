@@ -48,21 +48,16 @@ DELIVERABLE_NAMES = {
 }
 
 MODEL_INFO = {
-    "DeepSeek V3.2": {"type": "Chat", "cost": "$0.30 / $0.45"},
-    "DeepSeek R1": {"type": "Reasoning", "cost": "$0.80 / $2.40"},
-    "Qwen 3.5 397B": {"type": "Chat", "cost": "$0.60 / $3.60"},
-    "Qwen3 Coder 480B": {"type": "Chat", "cost": "$0.40 / $1.80"},
-    "Qwen3 235B Instruct": {"type": "Chat", "cost": "$0.20 / $0.60"},
-    "Qwen3 235B Thinking": {"type": "Reasoning", "cost": "$0.20 / $0.80"},
-    "GLM-5": {"type": "Chat", "cost": "$1.00 / $3.20"},
-    "GLM-4.7": {"type": "Chat", "cost": "$0.40 / $2.00"},
-    "Hermes 4 405B": {"type": "Reasoning", "cost": "$1.00 / $3.00"},
-    "GPT-OSS 120B": {"type": "Reasoning", "cost": "$0.15 / $0.60"},
-    "Kimi K2.5": {"type": "Chat", "cost": "$0.50 / $2.50"},
-    "MiniMax M2.5": {"type": "Chat", "cost": "$0.30 / $1.20"},
-    "Nemotron 3 Super 120B": {"type": "Chat", "cost": "$0.30 / $0.90"},
-    "Llama 3.3 70B": {"type": "Chat", "cost": "$0.13 / $0.40"},
-    "Gemma 3 27B": {"type": "Chat", "cost": "$0.10 / $0.30"},
+    "Hermes 4 405B": {"vendor": "NousResearch", "type": "Reasoning", "cost": "$1.00 / $3.00"},
+    "DeepSeek V3.2": {"vendor": "DeepSeek", "type": "Chat", "cost": "$0.30 / $0.45"},
+    "Qwen 3.5 397B": {"vendor": "Qwen", "type": "Chat", "cost": "$0.60 / $3.60"},
+    "GLM-5": {"vendor": "Zhipu AI", "type": "Chat", "cost": "$1.00 / $3.20"},
+    "GPT-OSS 120B": {"vendor": "OpenAI", "type": "Reasoning", "cost": "$0.15 / $0.60"},
+    "Kimi K2.5": {"vendor": "Moonshot AI", "type": "Chat", "cost": "$0.50 / $2.50"},
+    "MiniMax M2.5": {"vendor": "MiniMax", "type": "Chat", "cost": "$0.30 / $1.20"},
+    "Nemotron 3 Super 120B": {"vendor": "NVIDIA", "type": "Chat", "cost": "$0.30 / $0.90"},
+    "Llama 3.3 70B": {"vendor": "Meta", "type": "Chat", "cost": "$0.13 / $0.40"},
+    "Gemma 3 27B": {"vendor": "Google", "type": "Chat", "cost": "$0.10 / $0.30"},
 }
 
 
@@ -71,10 +66,11 @@ async def on_chat_start():
     model_lines = []
     for name in AVAILABLE_MODELS:
         info = MODEL_INFO.get(name, {})
+        vendor = info.get("vendor", "")
         mtype = info.get("type", "Chat")
         cost = info.get("cost", "—")
         marker = " *(default)*" if name == DEFAULT_MODEL else ""
-        model_lines.append(f"- **{name}**{marker} — {mtype}, {cost} per 1M tokens")
+        model_lines.append(f"- **{name}**{marker} — {vendor} | {mtype} | {cost}/1M tokens")
 
     model_list = "\n".join(model_lines)
 
@@ -127,7 +123,7 @@ async def on_message(message: cl.Message):
         info = MODEL_INFO.get(selected_model, {})
         await cl.Message(
             content=(
-                f"Using **{selected_model}** ({info.get('type', 'Chat')}, {info.get('cost', '—')}/1M tokens).\n\n"
+                f"Using **{selected_model}** by {info.get('vendor', '')} ({info.get('type', 'Chat')}, {info.get('cost', '—')}/1M tokens).\n\n"
                 "Now let's set up your engagement.\n\n"
                 "**What is your company name?**"
             )
