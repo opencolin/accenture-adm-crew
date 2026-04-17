@@ -10,7 +10,10 @@ load_dotenv()
 from crewai.types.streaming import StreamChunkType  # noqa: E402
 from accenture_adm_hierarchical_delivery_crew.crew import (  # noqa: E402
     AccentureAdmHierarchicalDeliveryCrew,
-    DEFAULT_MODEL,
+)
+from accenture_adm_hierarchical_delivery_crew.tools.ask_human import (  # noqa: E402
+    get_pending_question,
+    submit_response,
 )
 
 DELIVERABLES_DIR = Path("deliverables")
@@ -48,6 +51,11 @@ DELIVERABLE_NAMES = {
 
 @cl.on_chat_start
 async def on_chat_start():
+    # Only show welcome once per session
+    if cl.user_session.get("welcomed"):
+        return
+    cl.user_session.set("welcomed", True)
+
     await cl.Message(
         content=(
             "**Welcome to the Accenture ADM Delivery Crew**\n\n"
@@ -60,19 +68,29 @@ async def on_chat_start():
 
 @cl.on_message
 async def on_message(message: cl.Message):
-    # If crew already completed, handle deliverable viewing
-    if cl.user_session.get("crew_done"):
-        await handle_deliverable_request(message.content.strip())
+    user_text = message.content.strip()
+
+    # If an agent is waiting for a client answer, route it there
+    if get_pending_question() is not None:
+        submit_response(user_text)
         return
 
-    if cl.user_session.get("inputs") is not None:
-        await cl.Message(content="The crew is still running. Please wait.").send()
+    # If crew already completed, handle deliverable viewing
+    if cl.user_session.get("crew_done"):
+        await handle_deliverable_request(user_text)
+        return
+
+    # If crew is running but no agent question pending, ignore
+    if cl.user_session.get("crew_running"):
+        await cl.Message(
+            content="The crew is working. If a team member asked you a question, please reply to it above."
+        ).send()
         return
 
     # Step 1: Client name
     client_name = cl.user_session.get("client_name")
     if client_name is None:
-        client_name = message.content.strip() or "Client"
+        client_name = user_text or "Client"
         cl.user_session.set("client_name", client_name)
         await cl.Message(
             content=(
@@ -85,12 +103,12 @@ async def on_message(message: cl.Message):
         return
 
     # Step 2: Engagement type → kick off crew
-    engagement_type = message.content.strip() or "Digital Transformation"
+    engagement_type = user_text or "Digital Transformation"
     inputs = {
         "client_name": client_name,
         "engagement_type": engagement_type,
     }
-    cl.user_session.set("inputs", inputs)
+    cl.user_session.set("crew_running", True)
 
     await cl.Message(
         content=(
@@ -149,6 +167,7 @@ async def run_crew(inputs: dict):
     if response_msg:
         await response_msg.update()
 
+    cl.user_session.set("crew_running", False)
     cl.user_session.set("crew_done", True)
     await show_deliverables_menu()
 
