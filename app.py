@@ -1,6 +1,5 @@
 """Chainlit UI for the Accenture ADM Hierarchical Delivery Crew."""
 
-import os
 from pathlib import Path
 
 import chainlit as cl
@@ -11,7 +10,6 @@ load_dotenv()
 from crewai.types.streaming import StreamChunkType  # noqa: E402
 from accenture_adm_hierarchical_delivery_crew.crew import (  # noqa: E402
     AccentureAdmHierarchicalDeliveryCrew,
-    AVAILABLE_MODELS,
     DEFAULT_MODEL,
 )
 
@@ -47,42 +45,15 @@ DELIVERABLE_NAMES = {
     "12_engagement_closure.md": "Engagement Closure",
 }
 
-MODEL_INFO = {
-    "Hermes 4 405B": {"vendor": "NousResearch", "type": "Reasoning", "cost": "$1.00 / $3.00"},
-    "DeepSeek V3.2": {"vendor": "DeepSeek", "type": "Chat", "cost": "$0.30 / $0.45"},
-    "Qwen 3.5 397B": {"vendor": "Qwen", "type": "Chat", "cost": "$0.60 / $3.60"},
-    "GLM-5": {"vendor": "Zhipu AI", "type": "Chat", "cost": "$1.00 / $3.20"},
-    "GPT-OSS 120B": {"vendor": "OpenAI", "type": "Reasoning", "cost": "$0.15 / $0.60"},
-    "Kimi K2.5": {"vendor": "Moonshot AI", "type": "Chat", "cost": "$0.50 / $2.50"},
-    "MiniMax M2.5": {"vendor": "MiniMax", "type": "Chat", "cost": "$0.30 / $1.20"},
-    "Nemotron 3 Super 120B": {"vendor": "NVIDIA", "type": "Chat", "cost": "$0.30 / $0.90"},
-    "Llama 3.3 70B": {"vendor": "Meta", "type": "Chat", "cost": "$0.13 / $0.40"},
-    "Gemma 3 27B": {"vendor": "Google", "type": "Chat", "cost": "$0.10 / $0.30"},
-}
-
 
 @cl.on_chat_start
 async def on_chat_start():
-    model_lines = []
-    for name in AVAILABLE_MODELS:
-        info = MODEL_INFO.get(name, {})
-        vendor = info.get("vendor", "")
-        mtype = info.get("type", "Chat")
-        cost = info.get("cost", "—")
-        marker = " *(default)*" if name == DEFAULT_MODEL else ""
-        model_lines.append(f"- **{name}**{marker} — {vendor} | {mtype} | {cost}/1M tokens")
-
-    model_list = "\n".join(model_lines)
-
     await cl.Message(
         content=(
             "**Welcome to the Accenture ADM Delivery Crew**\n\n"
             "I'll connect you with our consulting team to help plan and "
             "deliver your engagement.\n\n"
-            "First, choose an AI model to power the team. "
-            "All models are served via Nebius Token Factory.\n\n"
-            f"{model_list}\n\n"
-            "Type a model name to select it, or press Enter for the default."
+            "To get started, **what is your company name?**"
         )
     ).send()
 
@@ -98,39 +69,7 @@ async def on_message(message: cl.Message):
         await cl.Message(content="The crew is still running. Please wait.").send()
         return
 
-    # Step 1: Model selection
-    selected_model = cl.user_session.get("model")
-    if selected_model is None:
-        user_input = message.content.strip()
-
-        if user_input == "" or user_input.lower() in ("default", "enter"):
-            selected_model = DEFAULT_MODEL
-        else:
-            matched = None
-            for name in AVAILABLE_MODELS:
-                if user_input.lower() in name.lower():
-                    matched = name
-                    break
-            if matched:
-                selected_model = matched
-            else:
-                await cl.Message(
-                    content=f"Model \"{user_input}\" not found. Please pick from the list above, or type **default**."
-                ).send()
-                return
-
-        cl.user_session.set("model", selected_model)
-        info = MODEL_INFO.get(selected_model, {})
-        await cl.Message(
-            content=(
-                f"Using **{selected_model}** by {info.get('vendor', '')} ({info.get('type', 'Chat')}, {info.get('cost', '—')}/1M tokens).\n\n"
-                "Now let's set up your engagement.\n\n"
-                "**What is your company name?**"
-            )
-        ).send()
-        return
-
-    # Step 2: Client name
+    # Step 1: Client name
     client_name = cl.user_session.get("client_name")
     if client_name is None:
         client_name = message.content.strip() or "Client"
@@ -145,7 +84,7 @@ async def on_message(message: cl.Message):
         ).send()
         return
 
-    # Step 3: Engagement type → kick off crew
+    # Step 2: Engagement type → kick off crew
     engagement_type = message.content.strip() or "Digital Transformation"
     inputs = {
         "client_name": client_name,
@@ -155,20 +94,19 @@ async def on_message(message: cl.Message):
 
     await cl.Message(
         content=(
-            f"Starting the **{engagement_type}** engagement for **{client_name}** "
-            f"powered by **{selected_model}**.\n\n"
+            f"Starting the **{engagement_type}** engagement for **{client_name}**.\n\n"
             "Our team is assembling now. You'll see each phase as it progresses, "
             "and team members may ask you questions directly.\n\n"
             "---"
         )
     ).send()
 
-    await run_crew(inputs, selected_model)
+    await run_crew(inputs)
 
 
-async def run_crew(inputs: dict, model_name: str):
+async def run_crew(inputs: dict):
     """Kick off the crew with streaming output to the Chainlit UI."""
-    crew_instance = AccentureAdmHierarchicalDeliveryCrew().set_model(model_name)
+    crew_instance = AccentureAdmHierarchicalDeliveryCrew()
     crew_obj = crew_instance.crew()
 
     streaming = await crew_obj.kickoff_async(inputs=inputs)
@@ -244,13 +182,11 @@ async def handle_deliverable_request(user_input: str):
         await cl.Message(content="No deliverables found.").send()
         return
 
-    # "all" shows every deliverable
     if user_input.lower() == "all":
         for f in files:
             await send_deliverable(f)
         return
 
-    # Try to match by number
     try:
         idx = int(user_input) - 1
         if 0 <= idx < len(files):
@@ -259,14 +195,12 @@ async def handle_deliverable_request(user_input: str):
     except ValueError:
         pass
 
-    # Try to match by name
     for f in files:
         label = DELIVERABLE_NAMES.get(f.name, f.stem)
         if user_input.lower() in label.lower() or user_input.lower() in f.name.lower():
             await send_deliverable(f)
             return
 
-    # No match — show menu again
     await cl.Message(
         content=f"Couldn't find \"{user_input}\". Type a number (1-{len(files)}) or **all**."
     ).send()
@@ -277,7 +211,6 @@ async def send_deliverable(filepath: Path):
     content = filepath.read_text()
     label = DELIVERABLE_NAMES.get(filepath.name, filepath.stem.replace("_", " ").title())
 
-    # Send the content as a readable message
     await cl.Message(
         content=f"### {label}\n\n{content}",
         elements=[
