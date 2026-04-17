@@ -1,54 +1,201 @@
-# AccentureAdmHierarchicalDeliveryCrew Crew
+# Accenture ADM Hierarchical Delivery Crew
 
-Welcome to the AccentureAdmHierarchicalDeliveryCrew Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+A multi-agent AI system that simulates Accenture's Application Delivery Method (ADM) lifecycle. Built with [CrewAI](https://crewai.com) and powered by [Nebius Token Factory](https://tokenfactory.nebius.com) inference.
 
-## Installation
+## Executive Summary
 
-Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+This project deploys 11 AI agents — each representing a distinct Accenture delivery role — to collaboratively execute a full enterprise engagement lifecycle. A Managing Director agent orchestrates the crew hierarchically, delegating work across strategy, consulting, architecture, development, testing, and deployment phases.
 
-First, if you haven't already, install uv:
+The system accepts a client name and engagement type as input and produces structured deliverables across 12 ADM phases: from initial engagement strategy through solution architecture, sprint execution, UAT coordination, production deployment, and executive closure.
 
-```bash
-pip install uv
+A Chainlit web UI enables real-time client interaction: clients describe their project, watch the crew work through each phase with streaming output, and answer clarifying questions from the consulting team directly in the chat.
+
+**Key capabilities:**
+- Hierarchical agent orchestration with delegation across 11 specialist roles
+- 12-phase ADM lifecycle execution with task dependencies and context passing
+- Interactive client-facing chat UI with human-in-the-loop questioning
+- Web search (Tavily) and site scraping tools for real-world research
+- Streaming output with per-phase progress visualization
+- Final executive synthesis report generated as a deliverable
+
+**Tech stack:** CrewAI 1.13 | DeepSeek V3.2 via Nebius Token Factory | Tavily Search | Chainlit | Python 3.11+
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Chainlit Web UI                        │
+│              Client chat + streaming output                 │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Managing Director (Manager Agent)              │
+│         Orchestrates all tasks hierarchically               │
+│                   DeepSeek V3.2                             │
+└───────────────────────┬─────────────────────────────────────┘
+                        │ delegates to
+        ┌───────────────┼───────────────┐
+        ▼               ▼               ▼
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│  Strategy &  │ │  Technology  │ │  Delivery &  │
+│  Consulting  │ │     Track    │ │  Operations  │
+│              │ │              │ │              │
+│ • Assoc Dir  │ │ • Solution   │ │ • Sr Delivery│
+│ • Engagement │ │   Architect  │ │   Lead       │
+│   Manager    │ │ • Technology │ │ • Program    │
+│ • Mgmt       │ │   Architect  │ │   Mgmt Lead  │
+│   Consultant │ │ • Tech       │ │ • Digital PM │
+│ • Strategy   │ │   Delivery   │ │              │
+│   Analyst    │ │   Lead       │ │              │
+└──────────────┘ └──────────────┘ └──────────────┘
+        │               │               │
+        ▼               ▼               ▼
+   ┌─────────┐    ┌─────────┐    ┌─────────┐
+   │ Tavily  │    │ Tavily  │    │ Tavily  │
+   │ Search  │    │ Search  │    │ Search  │
+   │ Scrape  │    │ Scrape  │    │ Scrape  │
+   │ Ask     │    │         │    │         │
+   │ Client  │    │         │    │         │
+   └─────────┘    └─────────┘    └─────────┘
 ```
 
-Next, navigate to your project directory and install the dependencies:
+## ADM Phases
 
-(Optional) Lock the dependencies and install them by using the CLI command:
-```bash
-crewai install
+The crew executes 12 tasks in sequence, each assigned to a specialist agent. Tasks receive context from their predecessors, building a coherent engagement narrative.
+
+| # | Phase | Agent | Tools |
+|---|-------|-------|-------|
+| 1 | Engagement Strategy & Delivery Planning | Associate Director | Search, Scrape, Ask Client |
+| 2 | Strategic Engagement Approval | Senior Delivery Lead | Search, Scrape, Ask Client |
+| 3 | Business Requirements Analysis | Strategy & Consulting Analyst | Search, Scrape, Ask Client |
+| 4 | Backlog Definition & Scope Planning | Management Consultant | Search, Scrape, Ask Client |
+| 5 | Solution Architecture Design | Solution Architect | Search, Scrape |
+| 6 | Technical Architecture Review | Technology Architect | Search, Scrape |
+| 7 | Solution Development & Implementation | Technology Delivery Lead | Search, Scrape |
+| 8 | Sprint Execution & Project Tracking | Digital Project Manager | Search, Scrape |
+| 9 | Integrated Testing & Solution Validation | Engagement Manager | Search, Scrape, Ask Client |
+| 10 | User Acceptance Testing Coordination | Engagement Manager | Search, Scrape, Ask Client |
+| 11 | Production Deployment & Cutover | Program Management Lead | Search, Scrape |
+| 12 | Service Introduction & Engagement Closure | Associate Director | Search, Scrape, Ask Client |
+
+The final task receives context from all 11 preceding phases to produce a comprehensive executive synthesis report.
+
+## Project Structure
+
 ```
-### Customizing
-
-**Add your `OPENAI_API_KEY` into the `.env` file**
-
-- Modify `src/accenture_adm_hierarchical_delivery_crew/config/agents.yaml` to define your agents
-- Modify `src/accenture_adm_hierarchical_delivery_crew/config/tasks.yaml` to define your tasks
-- Modify `src/accenture_adm_hierarchical_delivery_crew/crew.py` to add your own logic, tools and specific args
-- Modify `src/accenture_adm_hierarchical_delivery_crew/main.py` to add custom inputs for your agents and tasks
-
-## Running the Project
-
-To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
-
-```bash
-$ crewai run
+├── app.py                                          # Chainlit web UI entry point
+├── pyproject.toml                                  # Project config & dependencies
+├── .env                                            # API keys (not committed)
+├── .chainlit/config.toml                           # Chainlit UI configuration
+└── src/accenture_adm_hierarchical_delivery_crew/
+    ├── crew.py                                     # Crew orchestration & agent definitions
+    ├── main.py                                     # CLI entry point
+    ├── config/
+    │   ├── agents.yaml                             # Agent roles, goals, backstories
+    │   └── tasks.yaml                              # Task descriptions, outputs, dependencies
+    └── tools/
+        ├── __init__.py
+        └── ask_human.py                            # Human-in-the-loop tool (Chainlit integration)
 ```
 
-This command initializes the accenture_adm_hierarchical_delivery_crew Crew, assembling the agents and assigning them tasks as defined in your configuration.
+## Setup
 
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
+### Prerequisites
 
-## Understanding Your Crew
+- Python 3.11+ (3.13 recommended)
+- [uv](https://docs.astral.sh/uv/) for dependency management
+- A [Nebius Token Factory](https://studio.nebius.ai/) API key
+- A [Tavily](https://tavily.com/) API key
 
-The accenture_adm_hierarchical_delivery_crew Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
+### Installation
 
-## Support
+```bash
+# Clone the repo
+git clone https://github.com/colygon/accenture-adm-crew.git
+cd accenture-adm-crew
 
-For support, questions, or feedback regarding the AccentureAdmHierarchicalDeliveryCrew Crew or crewAI.
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
+# Create venv and install dependencies
+uv venv --python 3.13
+uv sync
+uv pip install chainlit tavily-python
+```
 
-Let's create wonders together with the power and simplicity of crewAI.
+### Configuration
+
+Create a `.env` file in the project root:
+
+```env
+NEBIUS_API_KEY=your_nebius_token_factory_key
+TAVILY_API_KEY=your_tavily_api_key
+```
+
+## Usage
+
+### Web UI (Chainlit)
+
+```bash
+.venv/bin/chainlit run app.py
+```
+
+Opens at `http://localhost:8000`. Enter your company name and engagement type, then interact with the consulting team as they work through each ADM phase.
+
+### CLI
+
+```bash
+# Interactive prompts for client name and engagement type
+.venv/bin/python -m accenture_adm_hierarchical_delivery_crew.main run
+
+# Or via CrewAI CLI
+crewai run
+```
+
+### Training & Replay
+
+```bash
+# Train the crew over N iterations
+.venv/bin/python -m accenture_adm_hierarchical_delivery_crew.main train <n_iterations> <output_file>
+
+# Replay from a specific task
+.venv/bin/python -m accenture_adm_hierarchical_delivery_crew.main replay <task_id>
+```
+
+## Model Configuration
+
+All agents use **DeepSeek V3.2** via Nebius Token Factory (`$0.30/$0.45 per 1M tokens`). The model is configured in `crew.py`:
+
+```python
+default_llm = LLM(
+    model="openai/deepseek-ai/DeepSeek-V3.2",
+    base_url="https://api.tokenfactory.nebius.com/v1",
+    api_key=NEBIUS_API_KEY,
+)
+```
+
+To use a different model, swap the model ID. Available options include:
+
+| Model | Type | Cost (in/out per 1M) |
+|-------|------|---------------------|
+| `deepseek-ai/DeepSeek-V3.2` | Chat | $0.30 / $0.45 |
+| `Qwen/Qwen3.5-397B-A17B` | Chat | $0.60 / $3.60 |
+| `zai-org/GLM-5` | Chat | $1.00 / $3.20 |
+| `deepseek-ai/DeepSeek-R1-0528` | Reasoning | $0.80 / $2.40 |
+| `NousResearch/Hermes-4-405B` | Reasoning | $1.00 / $3.00 |
+
+All model IDs must be prefixed with `openai/` for litellm routing (e.g., `openai/deepseek-ai/DeepSeek-V3.2`).
+
+## Output
+
+The final phase produces an executive synthesis report saved to `output/engagement_closure_report.md`. This report includes:
+
+1. Strategic value realization summary with quantified business impact
+2. Comprehensive service transition framework
+3. Success metrics validation against original engagement goals
+4. Operational excellence framework for sustained performance
+5. Strategic recommendations for future growth opportunities
+
+## License
+
+Private repository. All rights reserved.
