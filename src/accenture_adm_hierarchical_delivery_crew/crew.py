@@ -168,73 +168,84 @@ class AccentureAdmHierarchicalDeliveryCrew:
     def engagement_strategy_delivery_planning(self) -> Task:
         return Task(
             config=self.tasks_config["engagement_strategy_delivery_planning"],
+            output_file="deliverables/01_engagement_strategy.md",
         )
 
     @task
     def strategic_engagement_approval(self) -> Task:
         return Task(
             config=self.tasks_config["strategic_engagement_approval"],
+            output_file="deliverables/02_strategic_approval.md",
         )
 
     @task
     def business_requirements_analysis(self) -> Task:
         return Task(
             config=self.tasks_config["business_requirements_analysis"],
+            output_file="deliverables/03_business_requirements.md",
         )
 
     @task
     def backlog_definition_scope_planning(self) -> Task:
         return Task(
             config=self.tasks_config["backlog_definition_scope_planning"],
+            output_file="deliverables/04_backlog_scope.md",
         )
 
     @task
     def solution_architecture_design(self) -> Task:
         return Task(
             config=self.tasks_config["solution_architecture_design"],
+            output_file="deliverables/05_solution_architecture.md",
         )
 
     @task
     def technical_architecture_review(self) -> Task:
         return Task(
             config=self.tasks_config["technical_architecture_review"],
+            output_file="deliverables/06_technical_architecture_review.md",
         )
 
     @task
     def solution_development_implementation(self) -> Task:
         return Task(
             config=self.tasks_config["solution_development_implementation"],
+            output_file="deliverables/07_development_implementation.md",
         )
 
     @task
     def sprint_execution_project_tracking(self) -> Task:
         return Task(
             config=self.tasks_config["sprint_execution_project_tracking"],
+            output_file="deliverables/08_sprint_execution.md",
         )
 
     @task
     def integrated_testing_solution_validation(self) -> Task:
         return Task(
             config=self.tasks_config["integrated_testing_solution_validation"],
+            output_file="deliverables/09_testing_validation.md",
         )
 
     @task
     def user_acceptance_testing_coordination(self) -> Task:
         return Task(
             config=self.tasks_config["user_acceptance_testing_coordination"],
+            output_file="deliverables/10_uat_coordination.md",
         )
 
     @task
     def production_deployment_cutover(self) -> Task:
         return Task(
             config=self.tasks_config["production_deployment_cutover"],
+            output_file="deliverables/11_deployment_cutover.md",
         )
 
     @task
     def service_introduction_engagement_closure(self) -> Task:
         return Task(
             config=self.tasks_config["service_introduction_engagement_closure"],
-            output_file="output/engagement_closure_report.md",
+            output_file="deliverables/12_engagement_closure.md",
         )
 
     @crew

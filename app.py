@@ -1,5 +1,8 @@
 """Chainlit UI for the Accenture ADM Hierarchical Delivery Crew."""
 
+import os
+from pathlib import Path
+
 import chainlit as cl
 from dotenv import load_dotenv
 
@@ -11,6 +14,8 @@ from accenture_adm_hierarchical_delivery_crew.crew import (  # noqa: E402
     AVAILABLE_MODELS,
     DEFAULT_MODEL,
 )
+
+DELIVERABLES_DIR = Path("deliverables")
 
 TASK_LABELS = {
     "engagement_strategy_delivery_planning": "Engagement Strategy & Delivery Planning",
@@ -25,6 +30,21 @@ TASK_LABELS = {
     "user_acceptance_testing_coordination": "User Acceptance Testing Coordination",
     "production_deployment_cutover": "Production Deployment & Cutover",
     "service_introduction_engagement_closure": "Service Introduction & Engagement Closure",
+}
+
+DELIVERABLE_NAMES = {
+    "01_engagement_strategy.md": "Engagement Strategy",
+    "02_strategic_approval.md": "Strategic Approval",
+    "03_business_requirements.md": "Business Requirements",
+    "04_backlog_scope.md": "Backlog & Scope",
+    "05_solution_architecture.md": "Solution Architecture",
+    "06_technical_architecture_review.md": "Technical Architecture Review",
+    "07_development_implementation.md": "Development & Implementation",
+    "08_sprint_execution.md": "Sprint Execution",
+    "09_testing_validation.md": "Testing & Validation",
+    "10_uat_coordination.md": "UAT Coordination",
+    "11_deployment_cutover.md": "Deployment & Cutover",
+    "12_engagement_closure.md": "Engagement Closure",
 }
 
 MODEL_INFO = {
@@ -48,7 +68,6 @@ MODEL_INFO = {
 
 @cl.on_chat_start
 async def on_chat_start():
-    # Build model list for display
     model_lines = []
     for name in AVAILABLE_MODELS:
         info = MODEL_INFO.get(name, {})
@@ -74,15 +93,16 @@ async def on_chat_start():
 
 @cl.on_message
 async def on_message(message: cl.Message):
-    session_data = cl.user_session.get("inputs")
-
-    if session_data is not None:
-        await cl.Message(
-            content="The engagement has already been completed. Refresh the page to start a new one."
-        ).send()
+    # If crew already completed, handle deliverable viewing
+    if cl.user_session.get("crew_done"):
+        await handle_deliverable_request(message.content.strip())
         return
 
-    # Step 1: Model selection (if not done yet)
+    if cl.user_session.get("inputs") is not None:
+        await cl.Message(content="The crew is still running. Please wait.").send()
+        return
+
+    # Step 1: Model selection
     selected_model = cl.user_session.get("model")
     if selected_model is None:
         user_input = message.content.strip()
@@ -90,7 +110,6 @@ async def on_message(message: cl.Message):
         if user_input == "" or user_input.lower() in ("default", "enter"):
             selected_model = DEFAULT_MODEL
         else:
-            # Fuzzy match: find the best matching model name
             matched = None
             for name in AVAILABLE_MODELS:
                 if user_input.lower() in name.lower():
@@ -165,7 +184,6 @@ async def run_crew(inputs: dict, model_name: str):
         task_name = getattr(chunk, "task_name", None)
         agent_role = getattr(chunk, "agent_role", None)
 
-        # When a new task starts, create a new Step and message
         if task_name and task_name != current_task:
             if response_msg:
                 await response_msg.update()
@@ -181,14 +199,12 @@ async def run_crew(inputs: dict, model_name: str):
             response_msg = cl.Message(content="")
             await response_msg.send()
 
-        # Stream text content
         if chunk.chunk_type == StreamChunkType.TEXT:
             if response_msg is None:
                 response_msg = cl.Message(content="")
                 await response_msg.send()
             await response_msg.stream_token(chunk.content)
 
-        # Show tool usage
         elif chunk.chunk_type == StreamChunkType.TOOL_CALL:
             tool_call = getattr(chunk, "tool_call", None)
             if tool_call:
@@ -199,11 +215,80 @@ async def run_crew(inputs: dict, model_name: str):
     if response_msg:
         await response_msg.update()
 
+    cl.user_session.set("crew_done", True)
+    await show_deliverables_menu()
+
+
+async def show_deliverables_menu():
+    """Show the list of available deliverables after crew completion."""
+    files = sorted(DELIVERABLES_DIR.glob("*.md")) if DELIVERABLES_DIR.exists() else []
+
+    if not files:
+        await cl.Message(
+            content="---\n\n**Engagement complete.** No deliverable files were generated."
+        ).send()
+        return
+
+    lines = ["---\n\n**Engagement complete.** All ADM phases have been executed.\n"]
+    lines.append("### Deliverables\n")
+    lines.append("Type a number to view a deliverable, or **all** to view everything.\n")
+
+    for i, f in enumerate(files, 1):
+        label = DELIVERABLE_NAMES.get(f.name, f.stem.replace("_", " ").title())
+        lines.append(f"**{i}.** {label}")
+
+    await cl.Message(content="\n".join(lines)).send()
+
+
+async def handle_deliverable_request(user_input: str):
+    """Handle user requests to view deliverables."""
+    files = sorted(DELIVERABLES_DIR.glob("*.md")) if DELIVERABLES_DIR.exists() else []
+
+    if not files:
+        await cl.Message(content="No deliverables found.").send()
+        return
+
+    # "all" shows every deliverable
+    if user_input.lower() == "all":
+        for f in files:
+            await send_deliverable(f)
+        return
+
+    # Try to match by number
+    try:
+        idx = int(user_input) - 1
+        if 0 <= idx < len(files):
+            await send_deliverable(files[idx])
+            return
+    except ValueError:
+        pass
+
+    # Try to match by name
+    for f in files:
+        label = DELIVERABLE_NAMES.get(f.name, f.stem)
+        if user_input.lower() in label.lower() or user_input.lower() in f.name.lower():
+            await send_deliverable(f)
+            return
+
+    # No match — show menu again
     await cl.Message(
-        content=(
-            "---\n\n"
-            "**Engagement complete.** All ADM phases have been executed.\n\n"
-            "The final executive synthesis report has been saved to "
-            "`output/engagement_closure_report.md`."
-        )
+        content=f"Couldn't find \"{user_input}\". Type a number (1-{len(files)}) or **all**."
+    ).send()
+
+
+async def send_deliverable(filepath: Path):
+    """Send a deliverable file as a viewable message with download option."""
+    content = filepath.read_text()
+    label = DELIVERABLE_NAMES.get(filepath.name, filepath.stem.replace("_", " ").title())
+
+    # Send the content as a readable message
+    await cl.Message(
+        content=f"### {label}\n\n{content}",
+        elements=[
+            cl.File(
+                name=filepath.name,
+                path=str(filepath.resolve()),
+                display="side",
+            )
+        ],
     ).send()

@@ -186,15 +186,26 @@ To use a different model, swap the model ID. Available options include:
 
 All model IDs must be prefixed with `openai/` for litellm routing (e.g., `openai/deepseek-ai/DeepSeek-V3.2`).
 
-## Output
+## Deliverables
 
-The final phase produces an executive synthesis report saved to `output/engagement_closure_report.md`. This report includes:
+Each ADM phase writes its output to `deliverables/` as a numbered markdown file:
 
-1. Strategic value realization summary with quantified business impact
-2. Comprehensive service transition framework
-3. Success metrics validation against original engagement goals
-4. Operational excellence framework for sustained performance
-5. Strategic recommendations for future growth opportunities
+| File | Content |
+|------|---------|
+| `01_engagement_strategy.md` | Engagement strategy & delivery planning |
+| `02_strategic_approval.md` | Go/no-go approval decision |
+| `03_business_requirements.md` | Functional & non-functional requirements |
+| `04_backlog_scope.md` | Prioritized backlog with acceptance criteria |
+| `05_solution_architecture.md` | End-to-end architecture design |
+| `06_technical_architecture_review.md` | Architecture validation & risk assessment |
+| `07_development_implementation.md` | Solution increment & build artifacts |
+| `08_sprint_execution.md` | Sprint metrics & progress tracking |
+| `09_testing_validation.md` | Test coverage & release readiness |
+| `10_uat_coordination.md` | User acceptance testing results |
+| `11_deployment_cutover.md` | Go-live execution & stability metrics |
+| `12_engagement_closure.md` | Executive synthesis & strategic recommendations |
+
+In the Chainlit UI, deliverables are viewable and downloadable after the engagement completes. Type a number to view a specific deliverable or **all** to browse everything.
 
 ## License
 

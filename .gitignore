@@ -5,6 +5,7 @@
 __pycache__/
 *.pyc
 output/
+deliverables/
 .chainlit/.langchain.db
 .chainlit/chat_files/
 .chainlit/translations/
