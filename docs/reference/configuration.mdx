@@ -1,0 +1,91 @@
+---
+title: Configuration
+description: Environment variables, project settings, and dependency management
+---
+
+## Environment variables
+
+Create a `.env` file in the project root. The crew loads it automatically via `python-dotenv`.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEBIUS_API_KEY` | Yes | Nebius Token Factory API key from [studio.nebius.ai](https://studio.nebius.ai/) |
+| `TAVILY_API_KEY` | Yes | Tavily search API key from [tavily.com](https://tavily.com/) |
+
+## Project configuration
+
+### `pyproject.toml`
+
+```toml
+[project]
+name = "accenture_adm_hierarchical_delivery_crew"
+version = "0.1.0"
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[file-processing,litellm,tools]==1.13.0",
+]
+```
+
+Key settings:
+
+- **CrewAI version** is pinned to `1.13.0` for stability
+- **litellm** is overridden to `<=1.82.6` to avoid compatibility issues
+- **Python** requires 3.11+ in practice (onnxruntime needs 3.11+), though the spec says 3.10+
+
+### Entry points
+
+```toml
+[project.scripts]
+run_crew = "accenture_adm_hierarchical_delivery_crew.main:run"
+train = "accenture_adm_hierarchical_delivery_crew.main:train"
+replay = "accenture_adm_hierarchical_delivery_crew.main:replay"
+test = "accenture_adm_hierarchical_delivery_crew.main:test"
+```
+
+## LLM configuration
+
+The LLM is configured in `crew.py`:
+
+```python
+NEBIUS_BASE_URL = "https://api.tokenfactory.nebius.com/v1"
+
+default_llm = LLM(
+    model="openai/NousResearch/Hermes-4-405B",
+    base_url=NEBIUS_BASE_URL,
+    api_key=NEBIUS_API_KEY,
+)
+```
+
+### Key parameters
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| `model` | `openai/NousResearch/Hermes-4-405B` | Must use `openai/` prefix for litellm |
+| `base_url` | `https://api.tokenfactory.nebius.com/v1` | Nebius Token Factory endpoint |
+| `api_key` | From `NEBIUS_API_KEY` env var | Loaded at module init |
+
+## Dependency management
+
+The project uses [uv](https://docs.astral.sh/uv/) for dependency management.
+
+```bash
+# Install all dependencies
+uv sync
+
+# Install additional packages
+uv pip install chainlit tavily-python
+
+# Update CrewAI
+uv sync --upgrade-package crewai
+```
+
+## Directory structure
+
+| Path | Purpose | Git-tracked |
+|------|---------|-------------|
+| `.env` | API keys | No |
+| `.venv/` | Virtual environment | No |
+| `deliverables/` | Generated outputs | No |
+| `.chainlit/` | Chainlit config (auto-generated) | Partially |
+| `src/` | Source code | Yes |
+| `docs/` | Mintlify documentation | Yes |

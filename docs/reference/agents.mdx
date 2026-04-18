@@ -1,0 +1,125 @@
+---
+title: Agents
+description: Complete reference for all 11 agents in the delivery crew
+---
+
+## Agent hierarchy
+
+The crew models Accenture's delivery organization with three tracks:
+
+```
+                    Managing Director (Manager)
+                           │
+          ┌────────────────┼────────────────┐
+    Strategy &        Technology        Delivery &
+    Consulting          Track           Operations
+```
+
+## Manager agent
+
+The Managing Director is the **manager agent** in CrewAI's hierarchical process. It coordinates task execution but does not appear in the worker pool and has no tools.
+
+| Property | Value |
+|----------|-------|
+| Role | Managing Director at Accenture |
+| Goal | Own client relationships and ensure sustained, enterprise-level value |
+| Tools | None (manager agents cannot have tools) |
+| Delegation | Enabled |
+
+---
+
+## Strategy & consulting track
+
+These agents handle client-facing strategy, requirements, and analysis work. They have access to the **Ask Client** tool for human-in-the-loop interaction.
+
+### Associate Director
+
+| Property | Value |
+|----------|-------|
+| Goal | Lead major client initiatives, shape solution direction and commercial outcomes |
+| Tools | Tavily Search, Scrape Website, Ask Client |
+| Assigned tasks | Engagement Strategy, Engagement Closure |
+
+### Engagement Manager
+
+| Property | Value |
+|----------|-------|
+| Goal | Lead project workstream by managing scope, quality, and client expectations |
+| Tools | Tavily Search, Scrape Website, Ask Client |
+| Assigned tasks | Testing & Validation, UAT Coordination |
+
+### Management Consultant
+
+| Property | Value |
+|----------|-------|
+| Goal | Own and deliver complete project workstream with high-quality analysis |
+| Tools | Tavily Search, Scrape Website, Ask Client |
+| Assigned tasks | Backlog & Scope Planning |
+
+### Strategy & Consulting Analyst
+
+| Property | Value |
+|----------|-------|
+| Goal | Produce accurate, well-structured analyses and work products |
+| Tools | Tavily Search, Scrape Website, Ask Client |
+| Assigned tasks | Business Requirements Analysis |
+
+---
+
+## Technology track
+
+These agents handle architecture, design, and implementation. They use search and scraping but do not interact with the client directly.
+
+### Solution Architect
+
+| Property | Value |
+|----------|-------|
+| Goal | Translate client needs into coherent, feasible end-to-end solutions |
+| Tools | Tavily Search, Scrape Website |
+| Assigned tasks | Solution Architecture Design |
+
+### Technology Architect
+
+| Property | Value |
+|----------|-------|
+| Goal | Design robust, scalable, secure architectures |
+| Tools | Tavily Search, Scrape Website |
+| Assigned tasks | Technical Architecture Review |
+
+### Technology Delivery Lead
+
+| Property | Value |
+|----------|-------|
+| Goal | Ensure end-to-end technical solution is delivered with quality and operational readiness |
+| Tools | Tavily Search, Scrape Website |
+| Assigned tasks | Solution Development & Implementation |
+
+---
+
+## Delivery & operations track
+
+These agents manage governance, tracking, and deployment operations.
+
+### Senior Delivery Lead
+
+| Property | Value |
+|----------|-------|
+| Goal | Ensure complex engagements deliver measurable business outcomes |
+| Tools | Tavily Search, Scrape Website, Ask Client |
+| Assigned tasks | Strategic Engagement Approval |
+
+### Program Management Lead
+
+| Property | Value |
+|----------|-------|
+| Goal | Maintain delivery control through planning, tracking, and communication |
+| Tools | Tavily Search, Scrape Website |
+| Assigned tasks | Production Deployment & Cutover |
+
+### Digital Project Manager
+
+| Property | Value |
+|----------|-------|
+| Goal | Deliver digital transformation initiatives on time and on budget |
+| Tools | Tavily Search, Scrape Website |
+| Assigned tasks | Sprint Execution & Project Tracking |

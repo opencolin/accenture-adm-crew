@@ -1,0 +1,48 @@
+---
+title: Deliverables
+description: Understanding the 12 phase outputs produced by the crew
+---
+
+## Overview
+
+Each ADM phase writes its output to the `deliverables/` directory as a numbered markdown file. These are generated during crew execution and can be viewed in the Chainlit UI or opened directly.
+
+## Deliverable files
+
+| File | Phase | Content |
+|------|-------|---------|
+| `01_engagement_strategy.md` | Engagement Strategy | Business objectives, delivery model, roadmap, governance, risks |
+| `02_strategic_approval.md` | Strategic Approval | Go/no-go recommendation, alignment assessment, authorization |
+| `03_business_requirements.md` | Business Requirements | Functional & non-functional requirements, priorities, constraints |
+| `04_backlog_scope.md` | Backlog & Scope | Epics, user stories, acceptance criteria, effort estimates |
+| `05_solution_architecture.md` | Solution Architecture | Components, integrations, data flows, technology stack |
+| `06_technical_architecture_review.md` | Architecture Review | Validation report, risk assessment, compliance review |
+| `07_development_implementation.md` | Development | Implemented features, build artifacts, QA reports |
+| `08_sprint_execution.md` | Sprint Execution | Completed items, blockers, velocity metrics |
+| `09_testing_validation.md` | Testing & Validation | Test coverage, defects, release readiness |
+| `10_uat_coordination.md` | UAT Coordination | Acceptance outcomes, user feedback, go/no-go |
+| `11_deployment_cutover.md` | Deployment | Go-live summary, stability metrics, incident log |
+| `12_engagement_closure.md` | Engagement Closure | Executive synthesis, value realization, strategic recommendations |
+
+## Viewing in the UI
+
+After the crew completes, the Chainlit UI shows a deliverables menu. You can:
+
+- Type a **number** (e.g., `5`) to view Solution Architecture
+- Type a **name** (e.g., `architecture`) to fuzzy-match a deliverable
+- Type **all** to browse everything sequentially
+
+Each deliverable renders as formatted markdown in the chat with a download button.
+
+## Context chain
+
+The final deliverable (`12_engagement_closure.md`) is special — it receives context from **all 11 preceding phases**, allowing the Associate Director agent to synthesize the entire engagement into a comprehensive executive report.
+
+Other tasks receive context only from their direct predecessors:
+
+```
+Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+                                                       ↓
+Phase 7 → Phase 8 → Phase 9 → Phase 10 → Phase 11 → Phase 12
+                                                    (all phases)
+```

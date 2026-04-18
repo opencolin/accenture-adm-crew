@@ -1,0 +1,60 @@
+---
+title: Chainlit UI
+description: How the web interface works and how to customize it
+---
+
+## Overview
+
+The Chainlit UI provides a chat-based interface for interacting with the ADM delivery crew. It handles three concerns:
+
+1. **Onboarding** — collecting company name and engagement type
+2. **Crew execution** — streaming agent output and routing client questions
+3. **Deliverable browsing** — viewing and downloading phase outputs after completion
+
+## Message routing
+
+When the crew is running, messages are routed based on priority:
+
+```
+User sends message
+    │
+    ├─► Agent waiting for answer? → Route to agent (via ask_human tool)
+    │
+    ├─► Crew complete? → Handle deliverable request
+    │
+    ├─► Crew running, no question pending? → "Crew is working" notice
+    │
+    └─► Onboarding phase → Collect client name or engagement type
+```
+
+This ensures that when an agent asks the client a question (via the "Ask Client" tool), the user's next message goes directly to that agent rather than being intercepted by the onboarding flow.
+
+## Streaming output
+
+Each ADM phase appears as a headed section in the chat:
+
+- **Phase header** — shows the phase name and assigned agent role
+- **Streamed content** — agent output streams token-by-token
+- **Tool calls** — appear as collapsible steps showing which tool was used
+
+## Deliverable viewer
+
+After the crew completes, you can browse deliverables:
+
+- Type a **number** (1-12) to view a specific deliverable
+- Type **all** to view all deliverables sequentially
+- Type a **keyword** (e.g., "architecture") to find a matching deliverable
+
+Each deliverable renders as formatted markdown with a download button for the raw `.md` file.
+
+## Configuration
+
+The Chainlit config lives at `.chainlit/config.toml`. It is auto-generated on first run. Key settings:
+
+```toml
+[project]
+enable_telemetry = false
+
+[UI]
+name = "Accenture ADM Delivery Crew"
+```

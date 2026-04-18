@@ -1,0 +1,70 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Accenture ADM Delivery Crew",
+  "logo": {
+    "dark": "/images/logo-dark.svg",
+    "light": "/images/logo-light.svg"
+  },
+  "favicon": "/images/favicon.svg",
+  "colors": {
+    "primary": "#7C3AED",
+    "light": "#A78BFA",
+    "dark": "#5B21B6",
+    "anchors": {
+      "from": "#7C3AED",
+      "to": "#5B21B6"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/colygon/accenture-adm-crew"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "/quickstart"
+  },
+  "tabs": [
+    {
+      "name": "Guides",
+      "url": "guides"
+    },
+    {
+      "name": "Reference",
+      "url": "reference"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "quickstart",
+        "architecture"
+      ]
+    },
+    {
+      "group": "Guides",
+      "pages": [
+        "guides/running-the-crew",
+        "guides/chainlit-ui",
+        "guides/models",
+        "guides/deliverables",
+        "guides/customization"
+      ]
+    },
+    {
+      "group": "Reference",
+      "pages": [
+        "reference/agents",
+        "reference/tasks",
+        "reference/tools",
+        "reference/configuration"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/colygon/accenture-adm-crew"
+  }
+}

@@ -1,0 +1,46 @@
+---
+title: Introduction
+description: AI-powered enterprise delivery simulation using Accenture's ADM methodology
+---
+
+# Accenture ADM Delivery Crew
+
+A multi-agent AI system that simulates Accenture's Application Delivery Method (ADM) lifecycle. Built with [CrewAI](https://crewai.com) and powered by [Nebius Token Factory](https://tokenfactory.nebius.com) inference.
+
+## What it does
+
+The system deploys **11 AI agents** — each representing a distinct Accenture delivery role — to collaboratively execute a full enterprise engagement lifecycle. A Managing Director agent orchestrates the crew hierarchically, delegating work across strategy, consulting, architecture, development, testing, and deployment phases.
+
+<CardGroup cols={2}>
+  <Card title="11 Specialist Agents" icon="users">
+    From Managing Director to Strategy Analyst, each agent has a defined role, goals, and backstory matching Accenture's organizational hierarchy.
+  </Card>
+  <Card title="12 ADM Phases" icon="list-check">
+    Full lifecycle from engagement strategy through solution architecture, sprint execution, UAT, deployment, and executive closure.
+  </Card>
+  <Card title="Interactive Client Chat" icon="comments">
+    Chainlit web UI where clients describe their project and answer clarifying questions from the consulting team in real time.
+  </Card>
+  <Card title="Structured Deliverables" icon="file-lines">
+    Each phase produces a numbered markdown deliverable, viewable and downloadable from the UI after completion.
+  </Card>
+</CardGroup>
+
+## How it works
+
+1. **Client provides input** — company name and engagement type (e.g., "Digital Transformation", "Cloud Migration")
+2. **Managing Director orchestrates** — delegates tasks across the agent hierarchy
+3. **Agents research and collaborate** — using web search, site scraping, and inter-agent delegation
+4. **Client-facing agents ask questions** — when they need clarification on requirements, priorities, or constraints
+5. **12 deliverables are produced** — one per ADM phase, saved as markdown files
+
+## Tech stack
+
+| Component | Technology |
+|-----------|-----------|
+| Agent framework | CrewAI 1.13 |
+| LLM inference | Nebius Token Factory (Hermes 4 405B) |
+| Web search | Tavily |
+| Web UI | Chainlit |
+| Language | Python 3.11+ |
+| Package manager | uv |

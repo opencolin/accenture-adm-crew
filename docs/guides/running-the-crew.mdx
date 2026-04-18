@@ -1,0 +1,54 @@
+---
+title: Running the Crew
+description: Different ways to execute the ADM delivery crew
+---
+
+## Web UI (recommended)
+
+The Chainlit web UI provides the best experience with streaming output, interactive questioning, and deliverable browsing.
+
+```bash
+.venv/bin/chainlit run app.py
+```
+
+Opens at [http://localhost:8000](http://localhost:8000). The flow is:
+
+1. Enter your company name
+2. Describe the engagement type
+3. The crew executes all 12 ADM phases with streaming output
+4. Answer questions from client-facing agents as they arise
+5. Browse and download deliverables when complete
+
+## CLI
+
+For headless execution or scripting:
+
+```bash
+# Interactive prompts
+.venv/bin/python -m accenture_adm_hierarchical_delivery_crew.main run
+
+# With arguments
+.venv/bin/python -m accenture_adm_hierarchical_delivery_crew.main run "Cloud Migration" "Acme Corp"
+```
+
+When agents use the "Ask Client" tool in CLI mode, questions appear as terminal prompts.
+
+## Training
+
+Train the crew over multiple iterations to improve agent performance:
+
+```bash
+.venv/bin/python -m accenture_adm_hierarchical_delivery_crew.main train <iterations> <output_file>
+```
+
+## Replay
+
+Replay execution from a specific task (useful for debugging):
+
+```bash
+.venv/bin/python -m accenture_adm_hierarchical_delivery_crew.main replay <task_id>
+```
+
+## Execution time
+
+A full run through all 12 phases typically takes **5-15 minutes** depending on the model, how many tool calls agents make, and whether human input is required. The Hermes 4 405B default model balances quality and speed well.

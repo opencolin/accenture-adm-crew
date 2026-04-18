@@ -1,0 +1,103 @@
+---
+title: Architecture
+description: How the agents, tasks, and tools fit together
+---
+
+## System overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Chainlit Web UI                        │
+│              Client chat + streaming output                 │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Managing Director (Manager Agent)              │
+│         Orchestrates all tasks hierarchically               │
+│                   Hermes 4 405B                             │
+└───────────────────────┬─────────────────────────────────────┘
+                        │ delegates to
+        ┌───────────────┼───────────────┐
+        ▼               ▼               ▼
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│  Strategy &  │ │  Technology  │ │  Delivery &  │
+│  Consulting  │ │     Track    │ │  Operations  │
+│              │ │              │ │              │
+│ • Assoc Dir  │ │ • Solution   │ │ • Sr Delivery│
+│ • Engagement │ │   Architect  │ │   Lead       │
+│   Manager    │ │ • Technology │ │ • Program    │
+│ • Mgmt       │ │   Architect  │ │   Mgmt Lead  │
+│   Consultant │ │ • Tech       │ │ • Digital PM │
+│ • Strategy   │ │   Delivery   │ │              │
+│   Analyst    │ │   Lead       │ │              │
+└──────────────┘ └──────────────┘ └──────────────┘
+```
+
+## Hierarchical process
+
+The crew uses CrewAI's **hierarchical process** mode. The Managing Director acts as the manager agent — it does not appear in the worker pool but coordinates task execution across all other agents.
+
+Key behaviors:
+- The MD **delegates tasks** to the most appropriate agent based on the task description and agent capabilities
+- Worker agents can **delegate to each other** when they need expertise from a different role
+- **Client-facing agents** (strategy and consulting track) have access to the "Ask Client" tool for human-in-the-loop interaction
+
+## Data flow
+
+```
+Client Input (company name + engagement type)
+    │
+    ▼
+Phase 1: Engagement Strategy ──────────────────┐
+    │                                           │
+    ▼                                           │
+Phase 2: Strategic Approval ───────────────────┐│
+    │                                          ││
+    ▼                                          ││
+Phase 3: Business Requirements ───────────────┐││
+    │                                         │││
+    ▼                                         │││
+Phase 4: Backlog & Scope ───────────────────┐ │││
+    │                                       │ │││
+    ▼                                       │ │││
+Phase 5-6: Architecture Design & Review     │ │││
+    │                                       │ │││
+    ▼                                       │ │││
+Phase 7-8: Build & Sprint Execution         │ │││
+    │                                       │ │││
+    ▼                                       │ │││
+Phase 9-10: Testing & UAT                   │ │││
+    │                                       │ │││
+    ▼                                       │ │││
+Phase 11: Production Deployment             │ │││
+    │                                       │ │││
+    ▼                                       ▼ ▼▼▼
+Phase 12: Engagement Closure ◄── context from all phases
+    │
+    ▼
+deliverables/12_engagement_closure.md
+```
+
+Each task receives **context from its predecessors** via the `context` field in `tasks.yaml`. The final closure task receives context from all 11 preceding phases to produce a comprehensive executive synthesis.
+
+## Project structure
+
+```
+├── app.py                                          # Chainlit web UI
+├── pyproject.toml                                  # Dependencies & scripts
+├── .env                                            # API keys (not committed)
+├── .chainlit/config.toml                           # UI configuration
+├── deliverables/                                   # Generated deliverables
+│   ├── 01_engagement_strategy.md
+│   ├── ...
+│   └── 12_engagement_closure.md
+└── src/accenture_adm_hierarchical_delivery_crew/
+    ├── crew.py                                     # Crew, agents, tasks, LLM config
+    ├── main.py                                     # CLI entry point
+    ├── config/
+    │   ├── agents.yaml                             # Agent roles & backstories
+    │   └── tasks.yaml                              # Task descriptions & dependencies
+    └── tools/
+        └── ask_human.py                            # Human-in-the-loop tool
+```

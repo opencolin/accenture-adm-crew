@@ -1,0 +1,106 @@
+---
+title: Tools
+description: Reference for all tools available to agents
+---
+
+## Tool assignment
+
+Agents are divided into two groups based on their tool access:
+
+| Group | Tools | Agents |
+|-------|-------|--------|
+| Client-facing | Tavily Search, Scrape Website, Ask Client | Associate Director, Senior Delivery Lead, Engagement Manager, Management Consultant, Strategy Analyst |
+| Internal | Tavily Search, Scrape Website | Solution Architect, Technology Architect, Technology Delivery Lead, Program Management Lead, Digital PM |
+
+The **Manager agent** (Managing Director) has no tools — it only delegates.
+
+---
+
+## Tavily Search
+
+Web search powered by the [Tavily API](https://tavily.com/).
+
+| Property | Value |
+|----------|-------|
+| Name | `Tavily Search` |
+| Source | `crewai_tools.TavilySearchTool` |
+| Env var | `TAVILY_API_KEY` |
+
+**Usage:** Agents use this to research client industries, competitive landscapes, technology trends, and best practices.
+
+**Input:**
+```json
+{
+  "query": "cloud-native POS systems market analysis 2025"
+}
+```
+
+---
+
+## Scrape Website
+
+Reads and extracts content from web pages.
+
+| Property | Value |
+|----------|-------|
+| Name | `Read website content` |
+| Source | `crewai_tools.ScrapeWebsiteTool` |
+| Env var | None |
+
+**Usage:** Agents use this to read specific web pages for detailed information — client websites, documentation, competitor pages.
+
+**Input:**
+```json
+{
+  "website_url": "https://example.com/about"
+}
+```
+
+---
+
+## Ask Client
+
+Human-in-the-loop tool that asks the client a question through the Chainlit UI (or terminal in CLI mode).
+
+| Property | Value |
+|----------|-------|
+| Name | `Ask Client` |
+| Source | `tools/ask_human.py` |
+| Env var | None |
+| Timeout | 300 seconds |
+
+**Usage:** Client-facing agents use this when they need clarification on requirements, priorities, constraints, or approval.
+
+**Input:**
+```json
+{
+  "question": "What are the top 3 business problems this engagement should address?"
+}
+```
+
+**How it works:**
+
+1. The agent calls the tool with a question
+2. The question appears as a message in the Chainlit chat
+3. The tool blocks until the user responds (up to 5 minutes)
+4. The user's response is returned to the agent as the tool result
+5. The agent incorporates the answer into its work
+
+In CLI mode, the question appears as a terminal prompt and the user types their response directly.
+
+### Implementation details
+
+The tool uses a thread-safe queue to coordinate between the agent thread (where CrewAI runs tools synchronously) and the Chainlit event loop (where `on_message` runs asynchronously):
+
+```
+Agent thread                    Chainlit event loop
+    │                                  │
+    ├─ send question as message ──────►│
+    ├─ set_pending_question()          │
+    ├─ wait_for_response() ◄───────────┤◄── user sends reply
+    │                                  ├─ get_pending_question() ✓
+    │◄── submit_response() ───────────┤
+    │                                  │
+    ▼                                  ▼
+  (continues with answer)        (continues normally)
+```

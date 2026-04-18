@@ -1,0 +1,99 @@
+---
+title: Customization
+description: How to modify agents, tasks, tools, and the delivery workflow
+---
+
+## Modifying agents
+
+Agent definitions live in `src/accenture_adm_hierarchical_delivery_crew/config/agents.yaml`. Each agent has:
+
+```yaml
+associate_director_at_accenture:
+  role: Associate Director at Accenture
+  goal: Lead major client initiatives for {client_name}...
+  backstory: You operate at the boundary between delivery leadership...
+```
+
+- **`role`** — the agent's title, shown in task headers
+- **`goal`** — what the agent is trying to achieve (interpolated with `{client_name}` and `{engagement_type}`)
+- **`backstory`** — context that shapes the agent's behavior and expertise
+
+### Adding a new agent
+
+1. Add the definition to `agents.yaml`
+2. Add a corresponding `@agent` method in `crew.py`
+3. Assign it to tasks in `tasks.yaml`
+
+## Modifying tasks
+
+Task definitions live in `config/tasks.yaml`. Each task specifies:
+
+```yaml
+business_requirements_analysis:
+  description: Analyze {client_name} needs and translate them into...
+  expected_output: 'A requirements summary including: 1. Key business problems...'
+  agent: strategy_consulting_analyst_at_accenture
+  context:
+    - strategic_engagement_approval
+```
+
+- **`description`** — what the task involves
+- **`expected_output`** — the format and content of the deliverable
+- **`agent`** — which agent handles this task
+- **`context`** — list of preceding tasks whose output is passed as context
+
+### Changing the workflow
+
+To reorder phases, change dependencies, or add new phases:
+
+1. Edit `tasks.yaml` — add/remove/reorder task definitions and update `context` references
+2. Add corresponding `@task` methods in `crew.py`
+3. Update `TASK_LABELS` and `DELIVERABLE_NAMES` in `app.py` for the UI
+
+## Adding custom tools
+
+Create a new tool in `src/.../tools/`:
+
+```python
+from crewai.tools import BaseTool
+from pydantic import BaseModel, Field
+
+class MyToolInput(BaseModel):
+    query: str = Field(..., description="What to look up")
+
+class MyTool(BaseTool):
+    name: str = "My Tool"
+    description: str = "Does something useful for the agent"
+    args_schema: type[BaseModel] = MyToolInput
+
+    def _run(self, query: str) -> str:
+        # Implementation here
+        return "result"
+```
+
+Then add it to the appropriate agents in `crew.py`:
+
+```python
+my_tool = MyTool()
+
+@agent
+def some_agent(self) -> Agent:
+    return Agent(
+        config=self.agents_config["some_agent"],
+        tools=[search_tool, scrape_tool, my_tool],
+        # ...
+    )
+```
+
+## Changing input variables
+
+The crew accepts two input variables interpolated into agent goals and task descriptions:
+
+- `{client_name}` — the client company name
+- `{engagement_type}` — the type of engagement
+
+To add more variables:
+
+1. Add `{your_variable}` placeholders in `agents.yaml` and/or `tasks.yaml`
+2. Pass them in the `inputs` dict when calling `crew.kickoff(inputs={...})`
+3. Update the onboarding flow in `app.py` to collect the new input
