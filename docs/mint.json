@@ -45,6 +45,12 @@
       ]
     },
     {
+      "group": "Methodology",
+      "pages": [
+        "adm-methodology"
+      ]
+    },
+    {
       "group": "Guides",
       "pages": [
         "guides/running-the-crew",
